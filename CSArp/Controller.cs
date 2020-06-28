@@ -224,6 +224,8 @@ namespace CSArp
         #endregion
 
         #region Private helper functions
+        
+
         /// <summary>
         /// Return the gateway IPAddress of the selected network interface's
         /// </summary>
@@ -270,16 +272,10 @@ namespace CSArp
         }
         private PhysicalAddress GetGatewayMAC(string friendlyname)
         {
-            PhysicalAddress retval = null;
-            string gatewayip = GetGatewayIP(friendlyname).ToString();
-            foreach (ListViewItem listviewitem in _view.ListView1.Items)
-            {
-                if (listviewitem.SubItems[1].Text == gatewayip)
-                {
-                    retval = PhysicalAddress.Parse(listviewitem.SubItems[2].Text.Replace(":", "-"));
-                }
-            }
-            return retval;
+            var devices = LibPcapLiveDeviceList.Instance;
+            var device = (from devicex in devices where devicex.Interface.FriendlyName == friendlyname select devicex).ToList()[0];
+            ARP arper = new ARP(device);
+            return arper.Resolve(GetGatewayIP(friendlyname));
         }
         #endregion
     }
